@@ -7,7 +7,6 @@ substitutions:
 dashboard_import:
   package_import_url: github://klatremis/hw/dashboard_import.yaml@main
   
-
 esphome:
   name: ${name}
   project:
