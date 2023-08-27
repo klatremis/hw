@@ -6,13 +6,13 @@ substitutions:
 
 dashboard_import:
   package_import_url: github://klatremis/hw/dashboard_import.yaml@main
-  import_full_config: true
+  
 
 esphome:
   name: ${name}
   project:
-  name: "klatremis.hw"
-  version: "1.1"
+    name: "klatremis.hw"
+    version: "1.1"
   
   on_boot: 
     - priority: 600
