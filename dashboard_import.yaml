@@ -1,0 +1,66 @@
+substitutions:
+  name: deye12
+  device_description: "Esphome component for Deye sun-12k-sg04lp3"
+  modbus_controller_id: sg04lp3
+
+esphome:
+  name: ${name}
+  
+  on_boot: 
+    - priority: 600
+      then: 
+      - output.turn_on: pin16_high
+      - output.turn_on: pin17_high
+      - output.turn_on: pin19_high
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+output:
+  - platform: gpio
+    pin: 16
+    id: pin16_high
+    
+  - platform: gpio
+    pin: 17
+    id: pin17_high
+    
+  - platform: gpio
+    pin: 19
+    id: pin19_high 
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: ${name}
+    
+captive_portal:
+
+uart:
+  id: mod_bus
+  rx_pin: 21
+  tx_pin: 22
+  baud_rate: 9600
+  stop_bits: 1
+ 
+modbus:
+  id: modbus1
+# flow_control_pin: 4
+ 
+modbus_controller:
+  - id: ${modbus_controller_id}
+    address: 0x1
+    modbus_id: modbus1
+    setup_priority: -10
+    update_interval: 15sec
