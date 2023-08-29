@@ -10,14 +10,23 @@ Den generiske kode + ændringerne kan findes i "config.yaml" filen.
 
 ## Ny opsætning
  Hvis du ikke allerede har en Esp32 kørende
+
+* Sørg for at dit SSID & wifi password ligger i secrets i Esphome
+
+ ![image](https://github.com/klatremis/hw/assets/22115157/55fbb71c-8c09-4a35-8707-1bcc605fab2b)
  
 * Tilslut enheden til pc
 * Gå til https://web.esphome.io/ og connect til enheden
-![image](https://github.com/klatremis/hw/assets/22115157/e8acec6a-e01f-4af3-b4e4-2b9b652ef946)
-Installer BIN filen
-![image](https://github.com/klatremis/hw/assets/22115157/3cca71cc-a593-4170-b9bc-742955cc2a95)
+
+![image](https://github.com/klatremis/hw/assets/22115157/ca960245-4f9c-4263-8aa0-ee5c654988a9)
+
+* Installer BIN filen
+
+![image](https://github.com/klatremis/hw/assets/22115157/96c58681-8978-4049-a44d-27e08e392113)
+
 Når den er installeret, tryk på de 3 ... til højre og ændre wifi ssid og password  til dit.
-Nu bør den komme frem i ESPhome hvor den kan "adoptes", skip installation. Nu downloades config til enheden og den er klar til brug.
+Nu bør den komme frem i ESPhome hvor den kan "adoptes".
+
 ![image](https://github.com/klatremis/hw/assets/22115157/89434773-006c-4cb6-a1c2-1c25f670147a)
 
 # Eksisterende ESP32 installation
