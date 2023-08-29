@@ -65,7 +65,6 @@ uart:
   baud_rate: 9600
   stop_bits: 1
 ```
-Eksempel 
 Princippet ses herunder hvordan det skal opstilles.
 ![image](https://github.com/klatremis/hw/assets/22115157/2ee8a79d-8b8c-47cc-ad43-56c0512be632)
 
