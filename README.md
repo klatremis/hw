@@ -20,7 +20,7 @@ Den generiske kode + ændringerne kan findes i "config.yaml" filen.
 
 ![image](https://github.com/klatremis/hw/assets/22115157/ca960245-4f9c-4263-8aa0-ee5c654988a9)
 
-* Installer BIN filen
+* Installer BIN filen som findes øverst på github.
 
 ![image](https://github.com/klatremis/hw/assets/22115157/96c58681-8978-4049-a44d-27e08e392113)
 
