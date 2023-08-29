@@ -65,6 +65,6 @@ uart:
   stop_bits: 1
 ```
 Eksempel 
-Princippet ses herunder hvordan det skal opstilles. Dertil vedhæfter jeg github filen modificeret med tilføjelserne
+Princippet ses herunder hvordan det skal opstilles.
 ![image](https://github.com/klatremis/hw/assets/22115157/2ee8a79d-8b8c-47cc-ad43-56c0512be632)
 
