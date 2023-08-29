@@ -1,4 +1,7 @@
 # Klatremis HW
+
+![image](https://github.com/klatremis/hw/assets/22115157/ae6c4a97-1848-4a43-9474-56d54ab23e2c)
+
 ## Indledning og formål
 Chippen i klatremis modulet bruger en lidt anden hardware. Derfor er det nødvendigt at tilføje lidt til koden som 
 normalt findes på github. https://github.com/klatremis/esphome-for-deye/tree/main
