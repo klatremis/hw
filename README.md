@@ -9,25 +9,25 @@ Den generiske kode + ændringerne kan findes i "config.yaml" filen.
 ## Ny opsætning
  Hvis du ikke allerede har en Esp32 kørende
  
-* Tilgå din Home Assistant via. En HTTPS(nødvendig for at uploade via. Usb til enheden)
-Opret en ny enhed i Esphome som ESP32, kald den noget relevant, skip installation.
-* Klik Edit og kopier koden fra github config.yaml filen til enheden
-* Sørg for at dit wifi ssid og password er angivet I “secret” I Esphome.
-* Ret evt. ”name” til hvad den skal hedde i ESPhome.
-* Ret evt. ”device_type” til hvad inverterens entitys skal have som præfix i Home Assistant.
-* Installer via. USB fra ”this device. Vælg den rigtige com port.
-* Når den er færdig tilslut ESPen til inverter.
+* Tilslut enheden til pc
+* Gå til https://web.esphome.io/ og connect til enheden
+![image](https://github.com/klatremis/hw/assets/22115157/e8acec6a-e01f-4af3-b4e4-2b9b652ef946)
+Installer BIN filen
+![image](https://github.com/klatremis/hw/assets/22115157/3cca71cc-a593-4170-b9bc-742955cc2a95)
+Når den er installeret, tryk på de 3 ... til højre og ændre wifi ssid og password  til dit.
+Nu bør den komme frem i ESPhome hvor den kan "adoptes", skip installation. Nu downloades config til enheden og den er klar til brug.
+![image](https://github.com/klatremis/hw/assets/22115157/89434773-006c-4cb6-a1c2-1c25f670147a)
 
 # Eksisterende ESP32 installation
 Hvis du allerede har en ESP32 kørende med modbus til inverteren og vil erstatte dette hardware med den nye.
 Dette sletter kun entitys midlertidigt, men statestikken der ligger gemt i databasen bagved vil blive beholdt så længe 
 man bruger samme sensor navn i den nye enhed. Man skriver derefter bare videre i databasen som intet er hændt.
 * Tilgå din Home Assistant via. En HTTPS(nødvendig for at uploade via. Usb til enheden).
-* Afmonter din gamle esp32 hardware fra inverteren.
-* Gå til integrationer og enheder i HOME ASSISTANT, find din enhed i ESPhome, tryk de 3 dots og slet. (fjern ikke 
+* Afmonter dit gamle esp32 hardware
+* Gå til integrationer og enheder i HOME ASSISTANT, find din enhed, tryk de 3 dots og slet. (fjern ikke 
 enheden i ESPhome!).
 * Tilføj de nye modbus indstillinger i din nuværende kode i ESPhome.(Se herunder)
-* Plug in den nye enhed og installer koden.
+* Plug in den nye enhed og installer koden via usb.
 * Tilslut til inverteren
 * Genstart Home Assistant, gå til ”integrationer og enheder” og tilføj den til home assistant ved at trykke 
 konfigurer på enheden. Den skulle selv gerne dukke op igen.
