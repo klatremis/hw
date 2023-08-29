@@ -1,4 +1,6 @@
 # Klatremis HW
+![image](https://github.com/klatremis/hw/assets/22115157/144229b1-1ca8-4c09-a4f9-ac1b1156f769)
+
 
 ## Indledning og formål
 Chippen i klatremis modulet bruger en lidt anden hardware. Derfor er det nødvendigt at tilføje lidt til koden som 
