@@ -1,0 +1,1957 @@
+substitutions:
+  name: deye                                                 #name in ESPhome
+  device_description: "Esphome component for Deye"           #Description in ESPhome
+  modbus_controller_id: sg04lp3                              #just a random name for the modbus controler
+  device_name: sun12k                                        #Prefix for all entitys in Home Assistant
+
+  slow_update: "5"
+  fast_update: "2"
+  
+  mqtt_topic: deye-xxxxxxxxxx                                #deye-(inverter id fra manager.elitag)
+  mqtt_username: xxxxxxxxxxxx                                #MQTT Bruger fra manager.elitag.dk
+  mqtt_password: xxxxxxxxxxxx                                #MQTT Password fra manager.elitag.dk
+  mqtt_broker: manager.elitag.dk                             #MQTT Brokeren for manager.elitag.dk
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: true                                  #enable unique MAC name to have more than one inverter in esphome
+  on_boot: 
+    - priority: 600
+      then: 
+      - output.turn_on: pin16_high
+      - output.turn_on: pin17_high
+      - output.turn_on: pin19_high
+
+output:
+  - platform: gpio
+    pin: 16
+    id: pin16_high
+  - platform: gpio
+    pin: 17
+    id: pin17_high
+  - platform: gpio
+    pin: 19
+    id: pin19_high
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+json:
+
+api:
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: ${name}
+    
+captive_portal:
+
+uart:
+  id: mod_bus
+  rx_pin: 21
+  tx_pin: 22
+  baud_rate: 9600
+  stop_bits: 1
+
+http_request:
+  id: http_request_data
+
+mqtt:
+  broker: ${mqtt_broker}
+  id: mqtt_client
+  username: ${mqtt_username}
+  password: ${mqtt_password}
+  topic_prefix: ${mqtt_topic}
+  on_disconnect:
+    - logger.log:
+                  level: WARN
+                  format: "MQTT Disconneted."
+  on_message:
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_1_charge_enable
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "charge_1 ON"
+         - switch.turn_on: charge_p1
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_1_charge_enable
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "charge_1 OFF"
+         - switch.turn_off: charge_p1
+        
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_2_charge_enable
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "charge_2 ON"
+         - switch.turn_on: charge_p2
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_2_charge_enable
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "charge_2 OFF"
+         - switch.turn_off: charge_p2
+      
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_3_charge_enable
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "charge_3 ON"
+         - switch.turn_on: charge_p3
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_3_charge_enable
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "charge_3 OFF"
+         - switch.turn_off: charge_p3
+      
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_4_charge_enable
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "charge_4 ON"
+         - switch.turn_on: charge_p4
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_4_charge_enable
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "charge_4 OFF"
+         - switch.turn_off: charge_p4
+      
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_5_charge_enable
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "charge_5 ON"
+         - switch.turn_on: charge_p5
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_5_charge_enable
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "charge_5 OFF"
+         - switch.turn_off: charge_p5
+
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_6_charge_enable
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "ON charge_6"
+         - switch.turn_on: charge_p6
+      - topic: ${mqtt_topic}/switch/sun12k-time_point_6_charge_enable
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "OFF charge_6"
+         - switch.turn_off: charge_p6
+
+      - topic: ${mqtt_topic}/number/sun12k-time_of_use
+        qos: 0
+        then:
+        - logger.log: "Time Of uUse"
+        - number.set: 
+            id: sun12k_Time_of_Use
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/switch/sun12k-solar_sell
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "Solar sell ON"
+         - switch.turn_on: solar_sell
+      - topic: ${mqtt_topic}/switch/sun12k-solar_sell
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "Solar sell OFF"
+         - switch.turn_off: solar_sell
+
+      - topic: ${mqtt_topic}/switch/sun12k-grid_charge
+        qos: 0
+        payload: "ON"
+        then:
+         - logger.log: "grid_charge ON"
+         - switch.turn_on: grid_charge
+      - topic: ${mqtt_topic}/switch/sun12k-grid_charge
+        qos: 0
+        payload: "OFF"
+        then:
+         - logger.log: "grid_charge OFF"
+         - switch.turn_off: grid_charge
+      
+      - topic: ${mqtt_topic}/iot/httpget
+        qos: 0
+        then:
+         - logger.log: "sending http GET"
+         - http_request.get: !lambda "return x;"
+  
+#Timepoints
+      - topic: ${mqtt_topic}/number/sun12k-time_point_1_start
+        qos: 0
+        then:
+         - logger.log: "Timepoint 1 start"
+         - number.set: 
+            id: sun12k_Time_point_1 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_2_start
+        qos: 0
+        then:
+         - logger.log: "Timepoint 2 start"
+         - number.set: 
+            id: sun12k_Time_point_2 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_3_start
+        qos: 0
+        then:
+         - logger.log: "Timepoint 3 start"
+         - number.set: 
+            id: sun12k_Time_point_3 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_4_start
+        qos: 0
+        then:
+         - logger.log: "Timepoint 4 start"
+         - number.set: 
+            id: sun12k_Time_point_4 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_5_start
+        qos: 0
+        then:
+         - logger.log: "Timepoint 5 start"
+         - number.set: 
+            id: sun12k_Time_point_5 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_6_start
+        qos: 0
+        then:
+         - logger.log: "Timepoint 6 start"
+         - number.set: 
+            id: sun12k_Time_point_6 
+            value: !lambda "return atoi(x.c_str());"
+      
+# Power levels      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_1_power
+        qos: 0
+        then:
+         - logger.log: "Timepoint 1 power"
+         - number.set: 
+            id: sun12k_Time_point_1_power 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_2_power
+        qos: 0
+        then:
+         - logger.log: "Timepoint 2 power"
+         - number.set: 
+            id: sun12k_Time_point_2_power 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_3_power
+        qos: 0
+        then:
+         - logger.log: "Timepoint 3 power"
+         - number.set: 
+            id: sun12k_Time_point_3_power 
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time_point_4_power
+        qos: 0
+        then:
+         - logger.log: "Timepoint 4 power"
+         - number.set: 
+            id: sun12k_Time_point_4_power 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_5_power
+        qos: 0
+        then:
+        - logger.log: "Timepoint 5 power"
+        - number.set: 
+            id: sun12k_Time_point_5_power 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_6_power
+        qos: 0
+        then:
+         - logger.log: "Timepoint 6 power"
+         - number.set: 
+            id: sun12k_Time_point_6_power 
+            value: !lambda "return atoi(x.c_str());"
+#Capacity levels
+      - topic: ${mqtt_topic}/number/sun12k-time_point_1_capacity
+        qos: 0
+        then:
+         - logger.log: "Timepoint 1 capacity"
+         - number.set: 
+            id: sun12k_Time_point_1_capacity 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_2_capacity
+        qos: 0
+        then:
+         - logger.log: "Timepoint 2 capacity"
+         - number.set: 
+            id: sun12k_Time_point_2_capacity 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_3_capacity
+        qos: 0
+        then:
+        - logger.log: "Timepoint 3 capacity"
+        - number.set: 
+            id: sun12k_Time_point_3_capacity 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_4_capacity
+        qos: 0
+        then:
+         - logger.log: "Timepoint 4 capacity"
+         - number.set: 
+            id: sun12k_Time_point_4_capacity 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_5_capacity
+        qos: 0
+        then:
+         - logger.log: "Timepoint 5 capacity"
+         - number.set: 
+            id: sun12k_Time_point_5_capacity 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time_point_6_capacity
+        qos: 0
+        then:
+         - logger.log: "Timepoint 6 capacity"
+         - number.set: 
+            id: sun12k_Time_point_6_capacity 
+            value: !lambda "return atoi(x.c_str());"
+#Max Battery charge
+      - topic: ${mqtt_topic}/number/sun12k-maximum_battery_charge_current
+        qos: 0
+        then:
+        - logger.log: "Max Battery charge"
+        - number.set: 
+            id: sun12k_Maximum_battery_charge_current 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-maximum_battery_discharge_current
+        qos: 0
+        then:
+        - logger.log: "Max Battery discharge"
+        - number.set: 
+            id: sun12k_Maximum_battery_discharge_current 
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-maximum_battery_grid_charge_current
+        qos: 0
+        then:
+        - logger.log: "Max Battery grid charge"
+        - number.set: 
+            id: sun12k_Maximum_battery_grid_charge_current
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-maximum_batt_capacity
+        qos: 0
+        then:
+        - logger.log: "Max Battery capacaity"
+        - number.set: 
+            id: sun12k_Maximum_Batt_Capacity
+            value: !lambda "return atoi(x.c_str());"
+ 
+#Workmode
+      - topic: ${mqtt_topic}/number/sun12k-workmode_load_batt_first
+        qos: 0
+        then:
+        - logger.log: "Workmode"
+        - number.set: 
+            id: sun12k_workmode_load_batt_first
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-max_sell_power
+        qos: 0
+        then:
+        - logger.log: "Max sell power"
+        - number.set: 
+            id: sun12k_Max_sell_power
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-sell #0 On 2 Off
+        qos: 0
+        then:
+        - logger.log: "Sell"
+        - number.set: 
+            id: sun12k_sell
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-gen_port_mode
+        qos: 0
+        then:
+        - logger.log: "gen_port_mode"
+        - number.set: 
+            id: sun12k_gen_port_mode
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-battery_operation
+        qos: 0
+        then:
+        - logger.log: "battery_operation"
+        - number.set: 
+            id: sun12k_battery_operation
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time-minute
+        qos: 0
+        then:
+        - logger.log: "set minute"
+        - number.set: 
+            id: sun12k_time_minute
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time-hour
+        qos: 0
+        then:
+        - logger.log: "set hour"
+        - number.set: 
+            id: sun12k_time_hour
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time-day
+        qos: 0
+        then:
+        - logger.log: "set day"
+        - number.set: 
+            id: sun12k_time_day
+            value: !lambda "return atoi(x.c_str());"
+
+      - topic: ${mqtt_topic}/number/sun12k-time-year
+        qos: 0
+        then:
+        - logger.log: "set year"
+        - number.set: 
+            id: sun12k_time_year
+            value: !lambda "return atoi(x.c_str());"
+      
+      - topic: ${mqtt_topic}/number/sun12k-time-month
+        qos: 0
+        then:
+        - logger.log: "set month"
+        - number.set: 
+            id: sun12k_time_month
+            value: !lambda "return atoi(x.c_str());"
+
+modbus:
+  id: modbus1
+
+modbus_controller:
+  - id: ${modbus_controller_id}
+    address: 0x1
+    modbus_id: modbus1
+    setup_priority: -10
+    update_interval: 15sec
+
+switch:
+  - platform: restart
+    name: "Reboot logger"
+
+  - platform: factory_reset
+    name: Restart with Factory Default Settings
+
+  - platform: modbus_controller #function not working great
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}Inverter on/off
+    register_type: holding
+    address: 80
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery - Lithium Mode"
+    id: lithium_mode
+    register_type: holding
+    address: 98
+    bitmask: 1
+    icon: "mdi:toggle-switch"
+
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Grid_Charge
+    id: grid_charge
+    register_type: holding
+    address: 130
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: sun12k_Solar_sell
+    id: solar_sell
+    register_type: holding
+    address: 145
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time of Use 
+    register_type: holding
+    address: 146
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok 
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time point 1 charge enable
+    id: charge_p1
+    register_type: holding
+    address: 172
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time point 2 charge enable
+    id: charge_p2
+    register_type: holding
+    address: 173
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time point 3 charge enable
+    id: charge_p3
+    register_type: holding
+    address: 174
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time point 4 charge enable
+    id: charge_p4
+    register_type: holding
+    address: 175
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time point 5 charge enable
+    id: charge_p5
+    register_type: holding
+    address: 176
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+ 
+  - platform: modbus_controller #ok
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time point 6 charge enable
+    id: charge_p6
+    register_type: holding
+    address: 177
+    bitmask: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+
+binary_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-AC INV relay
+    register_type: holding
+    address: 552
+    bitmask: 0x1
+    skip_updates: ${slow_update}
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-AC Load relay Reserved
+    register_type: holding
+    address: 552
+    bitmask: 0x2
+    skip_updates: ${slow_update}
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-AC grid relay
+    register_type: holding
+    address: 552
+    bitmask: 0x4
+    skip_updates: ${slow_update}
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-AC Generator relay
+    register_type: holding
+    address: 552
+    bitmask: 0x8
+    skip_updates: ${slow_update}
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Turn off/on status
+    register_type: holding
+    address: 551
+    bitmask: 0x1
+    skip_updates: ${slow_update}
+ 
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    skip_updates: ${slow_update}
+    bitmask: 0
+    register_type: holding
+    address: 500
+    raw_encode: HEXBYTES
+    name: ${device_name}-Running Status
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        case 0: return std::string("standby");
+        case 1: return std::string("selfcheck");
+        case 2: return std::string("normal");
+        case 3: return std::string("alarm");
+        case 4: return std::string("fault");
+        default: return std::string("----");
+      }
+      return x;
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_serial
+    bitmask: 0
+    register_type: holding
+    address: 003
+    register_count: 5
+    response_size: 10
+    raw_encode: HEXBYTES
+    name: ${device_name}-serial
+       
+number:
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_time_month
+    bitmask: 255
+    register_type: holding
+    address: 62
+    name: ${device_name}-time-month
+    skip_updates: 5
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_time_year
+    bitmask: 65280
+    register_type: holding
+    address: 62
+    name: ${device_name}-time-year
+    skip_updates: 5
+    #Set date by 256 for each year + 1 for each month Oct 2023 = 5898
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_time_hour
+    bitmask: 255
+    register_type: holding
+    address: 63
+    name: ${device_name}-time-hour
+    skip_updates: 5
+    #Set day and hour by 256 for each day + hour number Day 22 hour 23 = 22*256+23 = 5655
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_time_day
+    bitmask: 65280
+    register_type: holding
+    address: 63
+    name: ${device_name}-time-day
+    skip_updates: 5
+    # 256 for each day
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_time_seconds
+    bitmask: 255
+    register_type: holding
+    address: 64
+    name: ${device_name}-time-seconds
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_time_minute
+    bitmask: 65280
+    register_type: holding
+    address: 64
+    name: ${device_name}-time-minute
+    value_type: U_WORD
+    # 256 for each minute
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Maximum Batt Capacity"
+    id: sun12k_Maximum_Batt_Capacity
+    address: 102
+    unit_of_measurement: A
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Maximum battery charge current"
+    id: sun12k_Maximum_battery_charge_current
+    address: 108
+    unit_of_measurement: A
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Maximum battery discharge current"
+    id: sun12k_Maximum_battery_discharge_current
+    address: 109
+    unit_of_measurement: A
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Maximum battery_grid charge current"
+    id: sun12k_Maximum_battery_grid_charge_current
+    address: 128
+    unit_of_measurement: A
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Max Solar Sell Power"
+    unit_of_measurement: W
+    address: 143
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Time of Use 
+    id: sun12k_Time_of_Use
+    register_type: holding
+    address: 146
+    bitmask: 1
+    min_value: 0
+    max_value: 1
+    entity_category: config
+    icon: "mdi:toggle-switch"
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Time_point_1
+    name: "${device_name}-Time point 1 start"
+    address: 148
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Time_point_2
+    name: "${device_name}-Time point 2 start"
+    address: 149
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Time_point_3
+    name: "${device_name}-Time point 3 start"
+    address: 150
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Time_point_4
+    name: "${device_name}-Time point 4 start"
+    address: 151
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Time_point_5
+    name: "${device_name}-Time point 5 start"
+    address: 152
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Time_point_6
+    name: "${device_name}-Time point 6 start"
+    address: 153
+    value_type: U_WORD
+  
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 1 power"
+    id: sun12k_Time_point_1_power
+    unit_of_measurement: W
+    address: 154
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 2 power"
+    id: sun12k_Time_point_2_power
+    unit_of_measurement: W
+    address: 155
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 3 power"
+    id: sun12k_Time_point_3_power
+    unit_of_measurement: W
+    address: 156
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 4 power"
+    id: sun12k_Time_point_4_power
+    unit_of_measurement: W
+    address: 157
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 5 power"
+    id: sun12k_Time_point_5_power
+    unit_of_measurement: W
+    address: 158
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 6 power"
+    id: sun12k_Time_point_6_power
+    unit_of_measurement: W
+    address: 159
+    value_type: U_WORD
+
+  # - platform: modbus_controller
+  #   use_write_multiple: true
+  #   modbus_controller_id: ${modbus_controller_id}
+  #   name: "${device_name}-Time point 1 voltage"
+  #   unit_of_measurement: "V"
+  #   address: 160
+  #   value_type: U_WORD
+  #   multiply: 100
+
+  # - platform: modbus_controller
+  #   use_write_multiple: true
+  #   modbus_controller_id: ${modbus_controller_id}
+  #   name: "${device_name}-Time point 2 voltage"
+  #   unit_of_measurement: "V"
+  #   address: 161
+  #   value_type: U_WORD
+  #   multiply: 100
+
+  # - platform: modbus_controller
+  #   use_write_multiple: true
+  #   modbus_controller_id: ${modbus_controller_id}
+  #   name: "${device_name}-Time point 3 voltage"
+  #   unit_of_measurement: "V"
+  #   address: 162
+  #   value_type: U_WORD
+  #   multiply: 100
+
+  # - platform: modbus_controller
+  #   use_write_multiple: true
+  #   modbus_controller_id: ${modbus_controller_id}
+  #   name: "${device_name}-Time point 4 voltage"
+  #   unit_of_measurement: "V"
+  #   address: 163
+  #   value_type: U_WORD
+  #   multiply: 100
+
+  # - platform: modbus_controller
+  #   use_write_multiple: true
+  #   modbus_controller_id: ${modbus_controller_id}
+  #   name: "${device_name}-Time point 5 voltage"
+  #   unit_of_measurement: "V"
+  #   address: 164
+  #   value_type: U_WORD
+  #   multiply: 100
+
+  # - platform: modbus_controller
+  #   use_write_multiple: true
+  #   modbus_controller_id: ${modbus_controller_id}
+  #   name: "${device_name}-Time point 6 voltage"
+  #   unit_of_measurement: "V"
+  #   address: 165
+  #   value_type: U_WORD
+  #   multiply: 100
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 1 capacity"
+    id: sun12k_Time_point_1_capacity
+    unit_of_measurement: "%"
+    address: 166
+    min_value: 0
+    max_value: 100
+    step: 5
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 2 capacity"
+    id: sun12k_Time_point_2_capacity
+    unit_of_measurement: "%"
+    address: 167
+    min_value: 0
+    max_value: 100
+    step: 5
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 3 capacity"
+    id: sun12k_Time_point_3_capacity
+    unit_of_measurement: "%"
+    address: 168
+    min_value: 0
+    max_value: 100
+    step: 5
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 4 capacity"
+    id: sun12k_Time_point_4_capacity
+    unit_of_measurement: "%"
+    address: 169
+    min_value: 0
+    max_value: 100
+    step: 5
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 5 capacity"
+    id: sun12k_Time_point_5_capacity
+    unit_of_measurement: "%"
+    address: 170
+    min_value: 0
+    max_value: 100
+    step: 5
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 6 capacity"
+    id: sun12k_Time_point_6_capacity
+    unit_of_measurement: "%"
+    address: 171
+    min_value: 0
+    max_value: 100
+    step: 5
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Generator Port Mode"
+    id: sun12k_gen_port_mode
+    address: 132
+    min_value: 0
+    max_value: 2
+    value_type: U_WORD
+    skip_updates: 5
+    #  "Generator Input": 0
+    #  "Smart Load output": 1
+    #  "Micro Inveter input": 2
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_workmode_load_batt_first
+    name: "${device_name}-workmode_load_batt_first"
+    address: 141
+    #bitmask: 3
+    min_value: 0
+    max_value: 1
+    value_type: U_WORD
+    skip_updates: 5
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-sell
+    id: sun12k_sell
+    address: 142
+    min_value: 0
+    max_value: 2
+    value_type: U_WORD
+    skip_updates: 5
+    #  "Selling first": 0
+    #  "Zero export to load": 1
+    #  "Zero export to CT": 2
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery Operation"
+    id: sun12k_battery_operation
+    address: 111
+    min_value: 0
+    max_value: 2
+    value_type: U_WORD
+    skip_updates: 5
+    #  "Voltage": 0
+    #  "SOC": 1
+    #  "No battery": 2
+
+  - platform: modbus_controller  # Gen signal ---------> skal tjekkes
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Gen_Grid_Signal On"
+    id: sun12_gen_grid_signal
+    register_type: holding
+    address: 140
+    value_type: U_WORD
+    skip_updates: 5
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    id: sun12k_Max_sell_power
+    name: "${device_name}-Max_sell_power"
+    unit_of_measurement: W
+    address: 143
+    min_value: 0
+    max_value: 12000
+    value_type: U_WORD
+    skip_updates: 5
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-GRID peak shaving Power"
+    unit_of_measurement: "W"
+    address: 191
+    value_type: U_WORD
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Max Solar Power"
+    unit_of_measurement: W
+    address: 340
+    value_type: U_WORD
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: my_charge_raw
+    register_type: holding
+    address: 178
+    value_type: U_WORD 
+    
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Pack1 SOC"
+    register_type: holding
+    address: 603
+    unit_of_measurement: "%"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Heat sink temperature"
+    id: sun12k_koleplade_temeratur
+    register_type: holding
+    address: 541
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 2
+    filters:
+      - offset: -1000
+      - multiply:  0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-load frequency"
+    id: sun12k_load_frequency
+    register_type: holding
+    address: 655
+    unit_of_measurement: "Hz"
+    state_class: "measurement"
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-inverter-frequency"
+    id: sun12k_inverter_frequency
+    register_type: holding
+    address: 638
+    unit_of_measurement: "Hz"
+    state_class: "measurement"
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+    value_type: U_WORD
+
+  - platform: modbus_controller # gen totalpower
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-genpower"
+    id: sun12k_genpower
+    register_type: holding
+    address: 667
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD 
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-PV1 Power"
+    id: sun12k_PV1_Power
+    register_type: holding
+    address: 672
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-PV2 Power"
+    id: sun12k_PV2_Power
+    register_type: holding
+    address: 673
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-PV1 Voltage"
+    id: sun12k_PV1_Voltage
+    register_type: holding
+    address: 676
+    unit_of_measurement: "V"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-PV2 Voltage"
+    id: sun12k_PV2_Voltage
+    register_type: holding
+    address: 678
+    unit_of_measurement: "V"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-PV1 Current"
+    id: sun12k_PV1_Current
+    register_type: holding
+    address: 677
+    unit_of_measurement: "A"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-PV2 Current"
+    id: sun12k_PV2_Current
+    register_type: holding
+    address: 679
+    unit_of_measurement: "A"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Daily Production"
+    id: sun12k_Daily_Production
+    register_type: holding
+    address: 529
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Total PV Energy New"
+    id: sun12k_Total_PV_Production
+    skip_updates: 10
+    register_type: holding
+    address: 534
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_DWORD_R
+    filters:
+      - multiply: 0.1
+      
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Total Grid Power"
+    id: sun12k_Total_Grid_Power
+    register_type: holding
+    address: 625
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Daily Energy Bought"
+    id: sun12k_Daily_Energy_Bought
+    register_type: holding
+    skip_updates: 10
+    address: 520
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_WORD
+    filters:
+      - multiply: 0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Daily Energy Sold"
+    id: sun12k_Daily_Energy_Sold
+    register_type: holding
+    skip_updates: 10
+    address: 521
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_WORD
+    filters:
+      - multiply: 0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Total Energy Bought"
+    id: sun12k_Total_Energy_Bought
+    register_type: holding
+    skip_updates: 10
+    address: 522
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_WORD
+    filters:
+      - multiply: 0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Total Energy Sold"
+    id: sun12k_Total_Energy_Sold
+    register_type: holding
+    skip_updates: 10
+    address: 524
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_WORD
+    filters:
+      - multiply: 0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Total Consumption"
+    id: sun12k_Total_Consumption
+    register_type: holding
+    skip_updates: 10
+    address: 527
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 2
+    value_type: U_DWORD_R
+    filters:
+      - multiply: 0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-active power generation of today"
+    id: sun12k_active_power_generation_of_today
+    register_type: holding
+    skip_updates: 10
+    address: 502
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: S_WORD
+    filters:
+      - multiply: 0.1
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Current L1"
+    id: sun12k_Grid_Current_L1
+    register_type: holding
+    address: 630
+    unit_of_measurement: "A"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+    value_type: S_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Current L2"
+    id: sun12k_Grid_Current_L2
+    register_type: holding
+    address: 631
+    unit_of_measurement: "A"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+    value_type: S_WORD   
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Current L3"
+    id: sun12k_Grid_Current_L3
+    register_type: holding
+    address: 632
+    unit_of_measurement: "A"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+    value_type: S_WORD   
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Voltage L1"
+    id: sun12k_Grid_Voltage_L1
+    skip_updates: 2
+    register_type: holding
+    address: 598
+    unit_of_measurement: "V"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD     
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Voltage L2"
+    id: sun12k_Grid_Voltage_L2
+    skip_updates: 2
+    register_type: holding
+    address: 599
+    unit_of_measurement: "V"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD     
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Voltage L3"
+    id: sun12k_Grid_Voltage_L3
+    skip_updates: 2
+    register_type: holding
+    address: 600
+    unit_of_measurement: "V"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    filters:
+      - multiply: 0.1
+    value_type: U_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Internal CT L1 Power"
+    id: sun12k_Internal_CT_L1_Power
+    register_type: holding
+    address: 604
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Internal CT L2 Power"
+    id: sun12k_Internal_CT_L2_Power
+    register_type: holding
+    address: 605
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Internal CT L3 Power"
+    id: sun12k_Internal_CT_L3_Power
+    register_type: holding
+    address: 606
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Internal total Power" 
+    id: sun12k_Internal_total_Power
+    register_type: holding
+    address: 607
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD   
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-External CT L1 Power"
+    id: sun12k_External_CT_L1_Power
+    register_type: holding
+    address: 616
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-External CT L2 Power"
+    id: sun12k_External_CT_L2_Power
+    register_type: holding
+    address: 617
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD  
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-External CT L3 Power"
+    id: sun12k_External_CT_L3_Power
+    register_type: holding
+    address: 618
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD     
+ 
+  - platform: modbus_controller  
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Out-of-grid–total power"
+    id: sun12k_out_of_grid_total_power
+    register_type: holding
+    address: 619
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD
+    
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Load totalpower" 
+    id: sun12k_Load_totalpower
+    register_type: holding
+    address: 653
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD
+
+#Batteri
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Today charge of the battery"
+    id: sun12k_Today_charge_of_the_battery
+    register_type: holding
+    address: 514
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_WORD
+    filters:
+      - multiply: 0.1
+    skip_updates: 5
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Today discharge of the battery"
+    id: sun12k_Today_discharge_of_the_battery
+    register_type: holding
+    address: 515
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_WORD
+    filters:
+      - multiply: 0.1
+    skip_updates: 5
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery Total Charge"
+    id: sun12k_battery_total_charge
+    register_type: holding
+    address: 516
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_DWORD_R
+    filters:
+      - multiply: 0.1
+    skip_updates: 5
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery Total Discharge"
+    id: sun12k_battery_total_discharge
+    register_type: holding
+    address: 518
+    unit_of_measurement: "kWh"
+    state_class: "total_increasing"
+    device_class: energy
+    accuracy_decimals: 1
+    value_type: U_DWORD_R 
+    filters:
+      - multiply: 0.1
+    skip_updates: 5
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-battery temperature"
+    id: sun12k_battery_temperature
+    register_type: holding
+    address: 586
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    value_type: U_WORD 
+    filters:
+      - offset: -1000
+      - multiply: 0.1
+    skip_updates: 5
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-battery voltage"
+    id: sun12k_battery_voltage
+    register_type: holding
+    address: 587  
+    unit_of_measurement: "V"
+    state_class: "measurement"
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-battery capacity"
+    id: sun12k_battery_capacity
+    register_type: holding
+    address: 588
+    unit_of_measurement: "%"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    value_type: U_WORD
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery output power"
+    id: sun12k_Battery_output_power
+    register_type: holding
+    address: 590
+    unit_of_measurement: "W"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: S_WORD 
+ 
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery output current"
+    id: sun12k_Battery_output_current
+    register_type: holding
+    address: 591
+    unit_of_measurement: "A"
+    state_class: "measurement"
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+    value_type: S_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-The corrected capacity of the battery"
+    id: sun12k_The_corrected_capacity_of_the_battery
+    register_type: holding
+    address: 592
+    unit_of_measurement: "Ah"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    value_type: U_WORD
+
+  - platform: wifi_signal
+    name: "${device_name}-WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
+
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "${device_name}-WiFi Signal Percent"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "% Signal"
+    entity_category: "diagnostic"
+    
+select:
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: ${device_name}-Energy priority
+    address: 141
+    value_type: U_WORD
+    optionsmap:
+      "Battery first": 0
+      "Load first": 1
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Limit control mode"
+    address: 142
+    value_type: U_WORD
+    optionsmap:
+      "Selling first": 0
+      "Zero export to load": 1
+      "Zero export to CT": 2
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 1 start"
+    address: 148
+    value_type: U_WORD
+    optionsmap:
+      "00:00": 0
+      "01:00": 100
+      "02:00": 200
+      "03:00": 300
+      "04:00": 400
+      "05:00": 500
+      "06:00": 600
+      "07:00": 700
+      "08:00": 800
+      "09:00": 900
+      "10:00": 1000
+      "11:00": 1100
+      "12:00": 1200
+      "13:00": 1300
+      "14:00": 1400
+      "15:00": 1500
+      "16:00": 1600
+      "17:00": 1700
+      "18:00": 1800
+      "19:00": 1900
+      "20:00": 2000
+      "21:00": 2100
+      "22:00": 2200
+      "23:00": 2300
+      "24:00": 2400
+    
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 2 start"
+    address: 149
+    value_type: U_WORD
+    optionsmap:
+      "00:00": 0
+      "01:00": 100
+      "02:00": 200
+      "03:00": 300
+      "04:00": 400
+      "05:00": 500
+      "06:00": 600
+      "07:00": 700
+      "08:00": 800
+      "09:00": 900
+      "10:00": 1000
+      "11:00": 1100
+      "12:00": 1200
+      "13:00": 1300
+      "14:00": 1400
+      "15:00": 1500
+      "16:00": 1600
+      "17:00": 1700
+      "18:00": 1800
+      "19:00": 1900
+      "20:00": 2000
+      "21:00": 2100
+      "22:00": 2200
+      "23:00": 2300
+      "24:00": 2400
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 3 start"
+    address: 150
+    value_type: U_WORD
+    optionsmap:
+      "00:00": 0
+      "01:00": 100
+      "02:00": 200
+      "03:00": 300
+      "04:00": 400
+      "05:00": 500
+      "06:00": 600
+      "07:00": 700
+      "08:00": 800
+      "09:00": 900
+      "10:00": 1000
+      "11:00": 1100
+      "12:00": 1200
+      "13:00": 1300
+      "14:00": 1400
+      "15:00": 1500
+      "16:00": 1600
+      "17:00": 1700
+      "18:00": 1800
+      "19:00": 1900
+      "20:00": 2000
+      "21:00": 2100
+      "22:00": 2200
+      "23:00": 2300
+      "24:00": 2400
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 4 start"
+    address: 151
+    value_type: U_WORD
+    optionsmap:
+      "00:00": 0
+      "01:00": 100
+      "02:00": 200
+      "03:00": 300
+      "04:00": 400
+      "05:00": 500
+      "06:00": 600
+      "07:00": 700
+      "08:00": 800
+      "09:00": 900
+      "10:00": 1000
+      "11:00": 1100
+      "12:00": 1200
+      "13:00": 1300
+      "14:00": 1400
+      "15:00": 1500
+      "16:00": 1600
+      "17:00": 1700
+      "18:00": 1800
+      "19:00": 1900
+      "20:00": 2000
+      "21:00": 2100
+      "22:00": 2200
+      "23:00": 2300
+      "24:00": 2400
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 5 start"
+    address: 152
+    value_type: U_WORD
+    optionsmap:
+      "00:00": 0
+      "01:00": 100
+      "02:00": 200
+      "03:00": 300
+      "04:00": 400
+      "05:00": 500
+      "06:00": 600
+      "07:00": 700
+      "08:00": 800
+      "09:00": 900
+      "10:00": 1000
+      "11:00": 1100
+      "12:00": 1200
+      "13:00": 1300
+      "14:00": 1400
+      "15:00": 1500
+      "16:00": 1600
+      "17:00": 1700
+      "18:00": 1800
+      "19:00": 1900
+      "20:00": 2000
+      "21:00": 2100
+      "22:00": 2200
+      "23:00": 2300
+      "24:00": 2400
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Time point 6 start"
+    address: 153
+    value_type: U_WORD
+    optionsmap:
+      "00:00": 0
+      "01:00": 100
+      "02:00": 200
+      "03:00": 300
+      "04:00": 400
+      "05:00": 500
+      "06:00": 600
+      "07:00": 700
+      "08:00": 800
+      "09:00": 900
+      "10:00": 1000
+      "11:00": 1100
+      "12:00": 1200
+      "13:00": 1300
+      "14:00": 1400
+      "15:00": 1500
+      "16:00": 1600
+      "17:00": 1700
+      "18:00": 1800
+      "19:00": 1900
+      "20:00": 2000
+      "21:00": 2100
+      "22:00": 2200
+      "23:00": 2300
+      "24:00": 2400      
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Battery Control Mode"
+    id: batt_control
+    address: 111
+    value_type: U_WORD
+    optionsmap:
+      "Voltage Mode": 0
+      "SoC mode": 1
+      "No Battery": 2
+
+  - platform: modbus_controller
+    use_write_multiple: true
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${device_name}-Grid Peak Shaving"
+    id: esphome_select_grid_peak_shaving
+    address: 178
+    entity_category: config
+    value_type: U_WORD
+    optionsmap:
+      "Disabled": 16
+      "Enabled": 48
+    lambda: |-
+      if ((x & 0x30) == 16)
+        return  std::string("Disabled");
+      if ((x & 0x30) == 48)
+        return  std::string("Enabled");
+      return {};
+    write_lambda: |-
+      uint16_t unmodified =  id(my_charge_raw).state;
+      uint16_t modified = ((unmodified & ~0x30) | value);
+      return modified;
