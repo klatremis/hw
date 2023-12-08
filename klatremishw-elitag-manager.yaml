@@ -4,8 +4,9 @@ substitutions:
   modbus_controller_id: sg04lp3                              #just a random name for the modbus controler
   device_name: sun12k                                        #Prefix for all entitys in Home Assistant
 
-  slow_update: "5"
+  slow_update: "10"
   fast_update: "2"
+  update_interval: 15sec                                     #15sec is normal update interval, to low interval will cause overflow of information!
   
   mqtt_topic: deye-xxxxxxxxxx                                #deye-(inverter id fra manager.elitag)
   mqtt_username: xxxxxxxxxxxx                                #MQTT Bruger fra manager.elitag.dk
@@ -460,7 +461,7 @@ modbus_controller:
     address: 0x1
     modbus_id: modbus1
     setup_priority: -10
-    update_interval: 15sec
+    update_interval: ${update_interval}
 
 switch:
   - platform: restart
@@ -668,7 +669,7 @@ number:
     register_type: holding
     address: 62
     name: ${device_name}-time-month
-    skip_updates: 5
+    skip_updates: ${slow_update}
 
   - platform: modbus_controller
     use_write_multiple: true
@@ -678,7 +679,7 @@ number:
     register_type: holding
     address: 62
     name: ${device_name}-time-year
-    skip_updates: 5
+    skip_updates: ${slow_update}
     #Set date by 256 for each year + 1 for each month Oct 2023 = 5898
 
   - platform: modbus_controller
@@ -689,7 +690,7 @@ number:
     register_type: holding
     address: 63
     name: ${device_name}-time-hour
-    skip_updates: 5
+    skip_updates: ${slow_update}
     #Set day and hour by 256 for each day + hour number Day 22 hour 23 = 22*256+23 = 5655
     
   - platform: modbus_controller
@@ -700,7 +701,7 @@ number:
     register_type: holding
     address: 63
     name: ${device_name}-time-day
-    skip_updates: 5
+    skip_updates: ${slow_update}
     # 256 for each day
 
   - platform: modbus_controller
@@ -1016,7 +1017,7 @@ number:
     min_value: 0
     max_value: 2
     value_type: U_WORD
-    skip_updates: 5
+    skip_updates: ${slow_update}
     #  "Generator Input": 0
     #  "Smart Load output": 1
     #  "Micro Inveter input": 2
@@ -1031,7 +1032,7 @@ number:
     min_value: 0
     max_value: 1
     value_type: U_WORD
-    skip_updates: 5
+    skip_updates: ${slow_update}
     
   - platform: modbus_controller
     use_write_multiple: true
@@ -1042,7 +1043,7 @@ number:
     min_value: 0
     max_value: 2
     value_type: U_WORD
-    skip_updates: 5
+    skip_updates: ${slow_update}
     #  "Selling first": 0
     #  "Zero export to load": 1
     #  "Zero export to CT": 2
@@ -1056,7 +1057,7 @@ number:
     min_value: 0
     max_value: 2
     value_type: U_WORD
-    skip_updates: 5
+    skip_updates: ${slow_update}
     #  "Voltage": 0
     #  "SOC": 1
     #  "No battery": 2
@@ -1069,7 +1070,7 @@ number:
     register_type: holding
     address: 140
     value_type: U_WORD
-    skip_updates: 5
+    skip_updates: ${slow_update}
 
   - platform: modbus_controller
     use_write_multiple: true
@@ -1081,7 +1082,7 @@ number:
     min_value: 0
     max_value: 12000
     value_type: U_WORD
-    skip_updates: 5
+    skip_updates: ${slow_update}
 
   - platform: modbus_controller
     use_write_multiple: true
@@ -1259,9 +1260,9 @@ sensor:
  
   - platform: modbus_controller
     modbus_controller_id: ${modbus_controller_id}
-    name: "${device_name}-Total PV Energy New"
+    name: "${device_name}-Total PV Energy"
     id: sun12k_Total_PV_Production
-    skip_updates: 10
+    skip_updates: ${slow_update}
     register_type: holding
     address: 534
     unit_of_measurement: "kWh"
@@ -1288,7 +1289,7 @@ sensor:
     name: "${device_name}-Daily Energy Bought"
     id: sun12k_Daily_Energy_Bought
     register_type: holding
-    skip_updates: 10
+    skip_updates: ${slow_update}
     address: 520
     unit_of_measurement: "kWh"
     state_class: "total_increasing"
@@ -1303,7 +1304,7 @@ sensor:
     name: "${device_name}-Daily Energy Sold"
     id: sun12k_Daily_Energy_Sold
     register_type: holding
-    skip_updates: 10
+    skip_updates: ${slow_update}
     address: 521
     unit_of_measurement: "kWh"
     state_class: "total_increasing"
@@ -1318,7 +1319,7 @@ sensor:
     name: "${device_name}-Total Energy Bought"
     id: sun12k_Total_Energy_Bought
     register_type: holding
-    skip_updates: 10
+    skip_updates: ${slow_update}
     address: 522
     unit_of_measurement: "kWh"
     state_class: "total_increasing"
@@ -1333,7 +1334,7 @@ sensor:
     name: "${device_name}-Total Energy Sold"
     id: sun12k_Total_Energy_Sold
     register_type: holding
-    skip_updates: 10
+    skip_updates: ${slow_update}
     address: 524
     unit_of_measurement: "kWh"
     state_class: "total_increasing"
@@ -1348,7 +1349,7 @@ sensor:
     name: "${device_name}-Total Consumption"
     id: sun12k_Total_Consumption
     register_type: holding
-    skip_updates: 10
+    skip_updates: ${slow_update}
     address: 527
     unit_of_measurement: "kWh"
     state_class: "total_increasing"
@@ -1363,7 +1364,7 @@ sensor:
     name: "${device_name}-active power generation of today"
     id: sun12k_active_power_generation_of_today
     register_type: holding
-    skip_updates: 10
+    skip_updates: ${slow_update}
     address: 502
     unit_of_measurement: "kWh"
     state_class: "total_increasing"
@@ -1568,7 +1569,7 @@ sensor:
     value_type: U_WORD
     filters:
       - multiply: 0.1
-    skip_updates: 5
+    skip_updates: ${slow_update}
 
   - platform: modbus_controller
     modbus_controller_id: ${modbus_controller_id}
@@ -1583,7 +1584,7 @@ sensor:
     value_type: U_WORD
     filters:
       - multiply: 0.1
-    skip_updates: 5
+    skip_updates: ${slow_update}
 
   - platform: modbus_controller
     modbus_controller_id: ${modbus_controller_id}
@@ -1598,7 +1599,7 @@ sensor:
     value_type: U_DWORD_R
     filters:
       - multiply: 0.1
-    skip_updates: 5
+    skip_updates: ${slow_update}
  
   - platform: modbus_controller
     modbus_controller_id: ${modbus_controller_id}
@@ -1613,7 +1614,7 @@ sensor:
     value_type: U_DWORD_R 
     filters:
       - multiply: 0.1
-    skip_updates: 5
+    skip_updates: ${slow_update}
  
   - platform: modbus_controller
     modbus_controller_id: ${modbus_controller_id}
@@ -1627,7 +1628,7 @@ sensor:
     filters:
       - offset: -1000
       - multiply: 0.1
-    skip_updates: 5
+    skip_updates: ${slow_update}
  
   - platform: modbus_controller
     modbus_controller_id: ${modbus_controller_id}
@@ -1933,25 +1934,3 @@ select:
       "Voltage Mode": 0
       "SoC mode": 1
       "No Battery": 2
-
-  - platform: modbus_controller
-    use_write_multiple: true
-    modbus_controller_id: ${modbus_controller_id}
-    name: "${device_name}-Grid Peak Shaving"
-    id: esphome_select_grid_peak_shaving
-    address: 178
-    entity_category: config
-    value_type: U_WORD
-    optionsmap:
-      "Disabled": 16
-      "Enabled": 48
-    lambda: |-
-      if ((x & 0x30) == 16)
-        return  std::string("Disabled");
-      if ((x & 0x30) == 48)
-        return  std::string("Enabled");
-      return {};
-    write_lambda: |-
-      uint16_t unmodified =  id(my_charge_raw).state;
-      uint16_t modified = ((unmodified & ~0x30) | value);
-      return modified;
